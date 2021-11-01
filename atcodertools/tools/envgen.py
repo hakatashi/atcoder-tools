@@ -161,10 +161,12 @@ def prepare_procedure(atcoder_client: AtCoderClient,
 
     output_splitter()
 
+    return content
+
 
 def func(argv: Tuple[AtCoderClient, Problem, Config]):
     atcoder_client, problem, config = argv
-    prepare_procedure(atcoder_client, problem, config)
+    return prepare_procedure(atcoder_client, problem, config)
 
 
 def prepare_contest(atcoder_client: AtCoderClient,
@@ -172,7 +174,8 @@ def prepare_contest(atcoder_client: AtCoderClient,
                     config: Config,
                     retry_delay_secs: float = 1.5,
                     retry_max_delay_secs: float = 60,
-                    retry_max_tries: int = 10):
+                    retry_max_tries: int = 10,
+                    problem_index: int = -1):
     attempt_count = 1
     while True:
         problem_list = atcoder_client.download_problem_list(
@@ -187,20 +190,20 @@ def prepare_contest(atcoder_client: AtCoderClient,
         retry_delay_secs = min(retry_delay_secs * 2, retry_max_delay_secs)
         attempt_count += 1
 
-    tasks = [(atcoder_client,
-              problem,
-              config) for
-             problem in problem_list]
+    tasks = [(atcoder_client, problem, config) for problem in problem_list]
+    if problem_index != -1:
+        tasks = tasks[problem_index:problem_index+1]
 
     output_splitter()
 
+    contents = []
     if config.etc_config.parallel_download:
         thread_pool = Pool(processes=cpu_count())
-        thread_pool.map(func, tasks)
+        contents.extend(thread_pool.map(func, tasks))
     else:
         for argv in tasks:
             try:
-                func(argv)
+                contents.append(func(argv))
             except Exception:
                 # Prevent the script from stopping
                 print(traceback.format_exc(), file=sys.stderr)
@@ -214,12 +217,14 @@ def prepare_contest(atcoder_client: AtCoderClient,
         config.postprocess_config.execute_on_contest_dir(
             contest_dir_path)
 
+    return contents
+
 
 class DeletedFunctionalityError(Exception):
     pass
 
 
-def main(prog, args):
+def main(prog, args, problem_index = -1):
     parser = argparse.ArgumentParser(
         prog=prog,
         formatter_class=argparse.RawTextHelpFormatter)
@@ -300,9 +305,13 @@ def main(prog, args):
     else:
         logger.info("Downloading data without login.")
 
-    prepare_contest(client,
+    return prepare_contest(client,
                     args.contest_id,
-                    config)
+                    config,
+                    retry_delay_secs=0.5,
+                    retry_max_delay_secs=0.5,
+                    retry_max_tries=100,
+                    problem_index=problem_index)
 
 
 if __name__ == "__main__":
