@@ -107,6 +107,8 @@ class AtCoderClient(metaclass=Singleton):
         resp = self._request(contest.get_problem_list_url())
         soup = BeautifulSoup(resp.text, "html.parser")
         res = []
+        if soup.find('table') is None:
+            return res
         for tag in soup.find('table').select('tr')[1::]:
             tag = tag.find("a")
             alphabet = tag.text
