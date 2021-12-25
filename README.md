@@ -27,6 +27,8 @@ Python 3.6 以降で動作する [AtCoder](https://atcoder.jp/) からサンプ�
 |Nim|[@chaemon](https://github.com/chaemon/) (generator, template)||
 |C#|[@chaemon](https://github.com/chaemon/) (generator, template)||
 |Swift|[@firewood](https://github.com/firewood/) (generator, template)||
+|Go|[@nu50218](https://github.com/nu50218/) (generator, template)|[@chaemon](https://github.com/chaemon/) (generator, template)|
+|Julia|[@yatra9](https://github.com/yatra9/) (generator, template)|[@chaemon](https://github.com/chaemon/) (generator, template)|
 
 ## Demo
 <img src="https://user-images.githubusercontent.com/233559/52807100-f6e2d300-30cd-11e9-8906-82b9f9b2dff7.gif" width=70%>
@@ -199,6 +201,7 @@ optional arguments:
 
 ## 設定ファイルの例
 `~/.atcodertools.toml`に以下の設定を保存すると、コードスタイルや、コード生成後に実行するコマンドを指定できます。
+設定ファイルはcodestyle, postprocess, tester, submit, etcのテーブルに分かれていて、codestyle.nimというようにテーブル名の後に.[言語名]で指定するとその言語のみに適用されます。
 
 以下は、次の挙動を期待する場合の`~/.atcodertools.toml`の例です。
 
@@ -208,11 +211,13 @@ optional arguments:
 - `workspace_dir='~/atcoder-workspace/'` ワークスペースのルートは `~/atcoder-workspace/`
 - `lang='cpp'` 言語設定は `cpp` (提出時もしくはデフォルトのコードジェネレーター生成時に使われます)
 - `code_generator_file="~/custom_code_generator.py"` カスタムコードジェネレーター `~/custom_code_generator.py`を指定する
+- `code_generator_toml="~/universal_code_generator.toml"` ユニバーサルコードジェネレーター `~/universal_code_generator.toml`を指定する
 - `exec_on_each_problem_dir='clang-format -i ./*.cpp'` `exec_on_contest_dir='touch CMakeLists.txt'`
     - 問題用ディレクトリ内で毎回`clang-format`を実行して、最後に`CMakeLists.txt`(空)をコンテスト用ディレクトリに生成する
 
 - `compile_before_testing` テスト前にコンパイルを実行するか否かをTrue/Falseで指定。何も指定しないとFalseとなります。
 - `compile_only_when_diff_detected` テスト前のコンパイルの際、元のソースに変更があった場合のみ実行するかをTrue/Falseで指定。何も指定しないとFalseとなります。
+- `timeout_adjustment=1.2` 問題文に記載された実行時間制限にこの値をかけた秒数がローカルテストの際の実行時間制限になります。例えばatcoderで制限時間2秒の問題は2x1.2=2.4秒となります。atcoderとローカルの実行環境が異なる場合の調整に使用してください。
 
 なお、`compile_before_testing`, `compile_only_when_diff_detected`はいずれもtesterの引数で指定することも可能で、指定した場合はそちらが優先されます。
 
@@ -222,6 +227,7 @@ optional arguments:
 - `skip_existing_problems=false` ディレクトリが既に存在する問題の処理をスキップする
 - `in_example_format="in_{}.txt"` テストケース(input)のフォーマットを`in_1.txt, in_2.txt, ...`とする
 - `out_example_format="out_{}.txt"` テストケース(output)のフォーマットを`out_1.txt, out_2.txt, ...`とする
+
 
 ```toml
 [codestyle]
@@ -240,6 +246,7 @@ compile_only_when_diff_detected=true
 [tester]
 compile_before_testing=true
 compile_only_when_diff_detected=true
+timeout_adjustment=1.2
 [etc]
 download_without_login=false
 parallel_download=false
@@ -247,8 +254,22 @@ save_no_session_cache=false
 skip_existing_problems=false
 in_example_format="in_{}.txt"
 out_example_format="out_{}.txt"
-
 ```
+
+また、以下のように提出時にコマンドを実行してその結果を提出することが可能です。C++以外のAC-libraryを自動に展開するような用途で用いることができます。下記の例はNim言語でACLのexpanderを実行しその出力ファイルを提出し、その後ローカルの出力ファイルを削除するという設定です。
+なお、C++に関してはAC-libraryがatcoderのジャッジにも搭載されているためこのような設定は不要です。
+
+- `exec_before_submit` 提出前に実行するコマンド
+- `submit_filename` exec_before_submitを実行した結果提出するファイルが変わる場合に指定
+- `exec_after_submit` 提出後に行う処理
+
+```toml
+[submit.nim]
+exec_before_submit='rm ./combined.nim | python3 ~/git/Nim-ACL/expander.py main.nim --lib /home/chaemon/git/Nim-ACL/ -s'
+exec_after_submit='rm ./combined.nim'
+submit_filename='./combined.nim'
+```
+
 
 ### カスタムコードジェネレーター
 [標準のC++コードジェネレーター](https://github.com/kyuridenamida/atcoder-tools/blob/master/atcodertools/codegen/code_generators/cpp.py)に倣って、
@@ -256,7 +277,7 @@ out_example_format="out_{}.txt"
 
 
 ### ユニバーサルコードジェネレーター
-ユニバーサルコードジェネレーターはループ・配列アクセス方法等のいくつかの言語仕様を記述するだけでカスタムコードジェネレーターよりも簡単にコード生成することを意図して作成したジェネレーターです。設定ファイルの書き方は以下です。
+ユニバーサルコードジェネレーターはループ・配列アクセス方法等のいくつかの言語仕様を記述するだけでカスタムコードジェネレーターよりも簡単にコード生成することを意図して作成したジェネレーターです。設定ファイルの`code_generator_toml`で指定します。書き方は以下です。
 
 - *base_indent* 入力部分のインデント数
 - *insert_space_around_operators* 入力部分の変数や演算子の間にスペースを入れるかどうかをtrue/falseで指定

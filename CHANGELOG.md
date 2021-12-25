@@ -1,9 +1,27 @@
 # Change Log
+## 2.11.0 / 2021-11-29
+Release version 2.11.0
+|PR|Change Summary|Label|Author|
+|:---|:---|:---|:---:|
+|[#249](https://github.com/kyuridenamida/atcoder-tools/pull/249)|setterを追加|![#84b6eb](https://via.placeholder.com/15/84b6eb/000000?text=+) **enhancement**|[chaemon](https://github.com/chaemon)|
+## 2.10.0 / 2021-11-29
+Release version 2.10.0
+|PR|Change Summary|Label|Author|
+|:---|:---|:---|:---:|
+|[#247](https://github.com/kyuridenamida/atcoder-tools/pull/247)|READMEのexec on submitの部分を加筆| |[chaemon](https://github.com/chaemon)|
+|[#246](https://github.com/kyuridenamida/atcoder-tools/pull/246)|Changed to use compile_command in the toml file when test and submit|![#84b6eb](https://via.placeholder.com/15/84b6eb/000000?text=+) **enhancement**|[shibukazu](https://github.com/shibukazu)|
+|[#234](https://github.com/kyuridenamida/atcoder-tools/pull/234)|submitの際のコマンド実行を追加|![#84b6eb](https://via.placeholder.com/15/84b6eb/000000?text=+) **enhancement**|[chaemon](https://github.com/chaemon)|
+## 2.9.0 / 2021-9-28
+Release version 2.9.0
+|PR|Change Summary|Label|Author|
+|:---|:---|:---|:---:|
+|[#245](https://github.com/kyuridenamida/atcoder-tools/pull/245)|Fix #240 Add missing return statement in submit_main|![#fc2929](https://via.placeholder.com/15/fc2929/000000?text=+) **bug**|[naskya](https://github.com/naskya)|
+|[#244](https://github.com/kyuridenamida/atcoder-tools/pull/244)|Add description for code_generator_toml|![#84b6eb](https://via.placeholder.com/15/84b6eb/000000?text=+) **enhancement**<br/>![#849AD0](https://via.placeholder.com/15/849AD0/000000?text=+) **generator**|[firewood](https://github.com/firewood)|
 ## 2.8.0 / 2021-8-19
 Release version 2.8.0
 |PR|Change Summary|Label|Author|
 |:---|:---|:---|:---:|
-|[#242](https://github.com/kyuridenamida/atcoder-tools/pull/242)|use input_part_prefix to generate code properly| |[kotet](https://github.com/kotet)|
+|[#242](https://github.com/kyuridenamida/atcoder-tools/pull/242)|use input_part_prefix to generate code properly|![#84b6eb](https://via.placeholder.com/15/84b6eb/000000?text=+) **enhancement**<br/>![#849AD0](https://via.placeholder.com/15/849AD0/000000?text=+) **generator**|[kotet](https://github.com/kotet)|
 ## 2.7.0 / 2021-8-19
 Release version 2.7.0
 |PR|Change Summary|Label|Author|
